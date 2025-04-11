@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漏洞修复工具</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --danger: #f72585;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --white: #ffffff;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        #shuicheCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .particle {
+            will-change: transform, opacity;
+        }
+        
+        /* 动态背景元素 */
+        .bg-bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bg-bubbles li {
+            position: absolute;
+            list-style: none;
+            display: block;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(67, 97, 238, 0.1);
+            bottom: -160px;
+            animation: square 20s infinite;
+            transition-timing-function: linear;
+            border-radius: 8px;
+        }
+        
+        .bg-bubbles li:nth-child(1) {
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .bg-bubbles li:nth-child(2) {
+            left: 20%;
+            width: 80px;
+            height: 80px;
+            animation-delay: 2s;
+            animation-duration: 17s;
+        }
+        
+        .bg-bubbles li:nth-child(3) {
+            left: 25%;
+            animation-delay: 4s;
+        }
+        
+        .bg-bubbles li:nth-child(4) {
+            left: 40%;
+            width: 60px;
+            height: 60px;
+            animation-duration: 22s;
+        }
+        
+        .bg-bubbles li:nth-child(5) {
+            left: 70%;
+        }
+        
+        .bg-bubbles li:nth-child(6) {
+            left: 80%;
+            width: 120px;
+            height: 120px;
+            animation-delay: 3s;
+        }
+        
+        .bg-bubbles li:nth-child(7) {
+            left: 32%;
+            width: 160px;
+            height: 160px;
+            animation-delay: 7s;
+        }
+        
+        .bg-bubbles li:nth-child(8) {
+            left: 55%;
+            width: 20px;
+            height: 20px;
+            animation-delay: 15s;
+            animation-duration: 40s;
+        }
+        
+        .bg-bubbles li:nth-child(9) {
+            left: 25%;
+            width: 10px;
+            height: 10px;
+            animation-delay: 2s;
+            animation-duration: 40s;
+        }
+        
+        .bg-bubbles li:nth-child(10) {
+            left: 90%;
+            width: 160px;
+            height: 160px;
+            animation-delay: 11s;
+        }
+        
+        @keyframes square {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 2.2rem;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            border-radius: 2px;
+        }
+        
+        .form-section {
+            background: rgba(248, 249, 250, 0.8);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        label {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+        
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background-color: var(--white);
+        }
+        
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button[name="unload_model"] {
+            background-color: var(--danger);
+        }
+        
+        button[name="unload_model"]:hover {
+            background-color: #e3176a;
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            border-left: 4px solid transparent;
+        }
+        
+        .message.success {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-left-color: var(--success);
+            color: #0a6b7e;
+        }
+        
+        .message.error {
+            background-color: rgba(247, 37, 133, 0.1);
+            border-left-color: var(--danger);
+            color: #a4134b;
+        }
+        
+        .chat-section {
+            margin-top: 30px;
+        }
+        
+        /* 修改对话框容器样式 */
+        .chat-container {
+            height: auto;  /* 改为自动高度 */
+            min-height: 400px;  /* 设置最小高度 */
+            max-height: 1000px;  /* 设置最大高度 */
+            overflow-y: auto;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: var(--white);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: min-height 0.3s ease;  /* 添加过渡效果 */
+        }
+        
+        .chat-message {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-message.user {
+            align-items: flex-end;
+        }
+        
+        .chat-message.model {
+            align-items: flex-start;
+        }
+        
+        .message-header {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: var(--gray);
+        }
+        
+        .chat-message.user .message-header {
+            color: var(--primary);
+        }
+        
+        .chat-message.model .message-header {
+            color: var(--success);
+        }
+        
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 80%;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+            word-break: break-word;
+        }
+        
+        .chat-message.user .message-content {
+            background-color: rgba(67, 97, 238, 0.1);
+            border-bottom-right-radius: 0;
+            color: var(--dark);
+        }
+        
+        .chat-message.model .message-content {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-bottom-left-radius: 0;
+            color: var(--dark);
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .input-container textarea {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            resize: none;
+            overflow-y: auto;
+            min-height: 50px;
+            max-height: 150px;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+        
+        .input-container textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .input-container button {
+            flex: 0 0 auto;
+            width: 100px;
+            padding: 12px;
+        }
+        
+        .clear-history-btn {
+            background-color: var(--gray);
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .clear-history-btn:hover {
+            background-color: #5a6268;
+        }
+        
+        /* 历史记录下拉样式 */
+        .history-list {
+            position: relative;
+        }
+        
+        .history-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 400px;
+            overflow-y: auto;
+            background: var(--white);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: none;
+        }
+        
+        /* 修改后的历史记录项样式 */
+        .history-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 保留悬停效果 */
+        .history-item:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        /* 历史文本样式 */
+        .history-item span {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 10px;
+        }
+
+        /* 修改后的删除按钮样式 */
+        .delete-btn {
+            flex: 0 0 32px;
+            width: 32px;
+            height: 32px;
+            text-align: center;
+            color: var(--danger);
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            padding: 0;
+            border-radius: 50%;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        /* 删除按钮悬停效果 */
+        .delete-btn:hover {
+            background-color: rgba(247, 37, 133, 0.1);
+            transform: scale(1.1);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .chat-container {
+                height: auto;      /* 同样改为自动高度 */
+                min-height: 400px; /* 与主样式一致的最小高度 */
+                max-height: 900px; /* 移动端最大高度稍小些 */
+            }
+            
+            .message-content {
+                max-width: 90%;
+            }
+        }
+    </style>
+    <script>
+        function initHistory(inputId, storageKey) {
+            const input = document.getElementById(inputId);
+            const container = document.createElement('div');
+            container.classList.add('history-list');
+            input.parentNode.insertBefore(container, input);
+            container.appendChild(input);
+
+            const dropdown = document.createElement('div');
+            dropdown.classList.add('history-dropdown');
+            dropdown.style.display = 'none';
+            container.appendChild(dropdown);
+
+            let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+            function updateDropdown() {
+                dropdown.innerHTML = '';
+                history.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.classList.add('history-item');
+                    div.innerHTML = `
+                        <span>${item}</span>
+                        <button class="delete-btn" data-index="${index}">×</button>
+                    `;
+                    div.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        removeHistory(storageKey, index);
+                    });
+                    div.addEventListener('click', () => {
+                        input.value = item;
+                        dropdown.style.display = 'none';
+                        moveToTop(item);
+                    });
+                    dropdown.appendChild(div);
+                });
+            }
+
+            function moveToTop(value) {
+                const index = history.indexOf(value);
+                if (index !== -1) {
+                    history.splice(index, 1);
+                }
+                history.unshift(value);
+                localStorage.setItem(storageKey, JSON.stringify(history));
+                updateDropdown();
+            }
+
+            input.addEventListener('focus', () => {
+                updateDropdown();
+                dropdown.style.display = history.length > 0 ? 'block' : 'none';
+            });
+
+            input.addEventListener('blur', () => {
+                setTimeout(() => {
+                    dropdown.style.display = 'none';
+                }, 200);
+            });
+
+            input.addEventListener('change', () => {
+                const value = input.value.trim();
+                if (value) {
+                    moveToTop(value);
+                }
+            });
+
+            window.removeHistory = (key, index) => {
+                const storedHistory = JSON.parse(localStorage.getItem(key)) || [];
+                storedHistory.splice(index, 1);
+                localStorage.setItem(key, JSON.stringify(storedHistory));
+                history = storedHistory;
+                updateDropdown();
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 创建动态背景元素
+            const bgBubbles = document.createElement('ul');
+            bgBubbles.className = 'bg-bubbles';
+            for (let i = 0; i < 10; i++) {
+                const li = document.createElement('li');
+                bgBubbles.appendChild(li);
+            }
+            document.body.insertBefore(bgBubbles, document.body.firstChild);
+
+            initHistory('tokenizer_path', 'tokenizerHistory');
+            initHistory('model_weights_path', 'modelWeightsHistory');
+
+            const inputCode = document.getElementById('input_code');
+            inputCode.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    sendCode();
+                }
+            });
+
+            inputCode.addEventListener('input', () => {
+                inputCode.style.height = 'auto';
+                const scrollHeight = inputCode.scrollHeight;
+                inputCode.style.height = Math.min(scrollHeight, 150) + 'px';
+            });
+
+            // 添加对话框自动调整的代码
+            const chatContainer = document.getElementById('chat-container');
+            const observer = new MutationObserver(() => {
+                chatContainer.style.minHeight = Math.min(
+                    chatContainer.scrollHeight, 
+                    1000  // 与CSS中的max-height保持一致
+                ) + 'px';
+            });
+
+            observer.observe(chatContainer, {
+                childList: true,
+                subtree: true
+            });
+
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
+            clearHistoryBtn.addEventListener('click', () => {
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.innerHTML = '';
+            });
+        });
+
+        async function sendCode() {
+            const inputCode = document.getElementById('input_code').value.trim();
+            const modelType = document.getElementById('model_type').value;
+
+            if (!inputCode) return;
+
+            const chatContainer = document.getElementById('chat-container');
+
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('chat-message', 'user');
+            userMessage.innerHTML = `
+                <div class="message-header">用户</div>
+                <div class="message-content">${inputCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+            `;
+            chatContainer.appendChild(userMessage);
+
+            document.getElementById('input_code').value = '';
+            document.getElementById('input_code').style.height = 'auto';
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ input_code: inputCode, model_type: modelType })
+                });
+
+                const result = await response.json();
+
+                const modelMessage = document.createElement('div');
+                modelMessage.classList.add('chat-message', 'model');
+                modelMessage.innerHTML = `
+                    <div class="message-header">${result.model_type}</div>
+                    <div class="message-content">${result.fixed_code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                `;
+                chatContainer.appendChild(modelMessage);
+
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } catch (error) {
+                console.error("请求失败：", error);
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('chat-message', 'model');
+                errorMessage.innerHTML = `
+                    <div class="message-header">错误</div>
+                    <div class="message-content">请求失败，请检查网络或后端服务。</div>
+                `;
+                chatContainer.appendChild(errorMessage);
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>漏洞修复工具</h1>
+        
+        <div class="form-section">
+            <form method="POST">
+                <label for="model_type">选择模型类型</label>
+                <select name="model_type" id="model_type">
+                    <option value="codet5" {% if model_type == "codet5" %}selected{% endif %}>CodeT5</option>
+                    <option value="codebert" {% if model_type == "codebert" %}selected{% endif %}>CodeBERT</option>
+                </select>
+
+                <label for="tokenizer_path">分词器路径（可选）</label>
+                <input type="text" name="tokenizer_path" id="tokenizer_path" placeholder="例如：./tokenizers/codet5_tokenizer">
+
+                <label for="model_weights_path">模型权重路径（可选）</label>
+                <input type="text" name="model_weights_path" id="model_weights_path" placeholder="例如：./models/codet5/pytorch_model.bin">
+
+                <div class="button-group">
+                    <button type="submit" name="load_model">加载模型</button>
+                    <button type="submit" name="unload_model">卸载模型</button>
+                </div>
+
+                {% if message %}
+                    <div class="message {% if "成功" in message %}success{% else %}error{% endif %}">
+                        <strong>{{ message|safe }}</strong>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="chat-section">
+            <div class="chat-container" id="chat-container"></div>
+            
+            <div class="input-container">
+                <textarea id="input_code" placeholder="请输入漏洞代码..."></textarea>
+                <button onclick="sendCode()">发送</button>
+            </div>
+            
+            <button id="clear-history-btn" class="clear-history-btn">清除历史对话</button>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/static/mouse.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.shuicheMouse({
+                type:11, 
+                color:"rgba(187,67,128,1)"
+            })
+        });
+    </script>
+    <!-- <script>
+        // 鼠标点击粒子爆炸效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const colors = ['#FF5252', '#FF4081', '#E040FB', '#7C4DFF', '#536DFE', '#448AFF', '#40C4FF', '#18FFFF', '#64FFDA', '#69F0AE', '#B2FF59', '#EEFF41', '#FFFF00', '#FFD740', '#FFAB40', '#FF6E40'];
+            
+            document.addEventListener('click', function(e) {
+                createParticles(e.clientX, e.clientY);
+            });
+    
+            function createParticles(x, y) {
+                const particleCount = 30;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    // 随机属性
+                    const size = Math.random() * 15 + 5;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    const angle = Math.random() * Math.PI * 2;
+                    const velocity = Math.random() * 5 + 2;
+                    const distance = Math.random() * 100 + 50;
+                    
+                    // 设置粒子样式
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.backgroundColor = color;
+                    particle.style.borderRadius = '50%';
+                    particle.style.position = 'fixed';
+                    particle.style.left = `${x}px`;
+                    particle.style.top = `${y}px`;
+                    particle.style.pointerEvents = 'none';
+                    particle.style.zIndex = '99999';
+                    particle.style.boxShadow = `0 0 10px ${color}`;
+                    
+                    document.body.appendChild(particle);
+                    
+                    // 动画
+                    const animation = particle.animate([
+                        { 
+                            transform: `translate(0, 0) scale(1)`,
+                            opacity: 1 
+                        },
+                        { 
+                            transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`,
+                            opacity: 0 
+                        }
+                    ], {
+                        duration: Math.random() * 1000 + 500,
+                        easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+                    });
+                    
+                    animation.onfinish = () => {
+                        particle.remove();
+                    };
+                }
+            }
+        });
+    </script> -->
+</body>
+</html>

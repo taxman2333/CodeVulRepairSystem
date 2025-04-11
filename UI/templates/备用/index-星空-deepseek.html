@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漏洞修复工具</title>
+    <style>
+        /* 新增星空背景样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            height: 100vh;
+            color: #fff;
+        }
+
+        /* 星空动画效果 */
+        @keyframes animStar {
+            from { transform: translateY(0px) }
+            to { transform: translateY(-2000px) }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: transparent;
+            z-index: -1;
+        }
+
+        .stars::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.1) 100%);
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: animStar linear infinite;
+        }
+
+        /* 容器样式更新 */
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: rgba(30, 35, 60, 0.85);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 25px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(100, 149, 237, 0.5);
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            color: #aab8ff;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            font-size: 14px;
+            background: rgba(20, 25, 45, 0.7);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: #4d90fe;
+            box-shadow: 0 0 8px rgba(77, 144, 254, 0.5);
+            outline: none;
+        }
+
+        button {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .message.success {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #d4edda;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .message.error {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #f8d7da;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .chat-container {
+            max-height: 1000px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            background: rgba(20, 25, 45, 0.5);
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+        }
+
+        .chat-message.user {
+            text-align: right;
+        }
+
+        .chat-message.user .message-header {
+            font-weight: bold;
+            color: #6e8efb;
+        }
+
+        .chat-message.user .message-content {
+            background: linear-gradient(135deg, rgba(110, 142, 251, 0.2), rgba(167, 119, 227, 0.2));
+            display: inline-block;
+            padding: 12px 16px;
+            border-radius: 12px 12px 0 12px;
+            max-width: 70%;
+            border: 1px solid rgba(110, 142, 251, 0.3);
+        }
+
+        .chat-message.model {
+            text-align: left;
+        }
+
+        .chat-message.model .message-header {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .chat-message.model .message-content {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(46, 125, 50, 0.2));
+            display: inline-block;
+            padding: 12px 16px;
+            border-radius: 12px 12px 12px 0;
+            max-width: 70%;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .input-container textarea {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            font-size: 14px;
+            resize: none;
+            overflow-y: auto;
+            min-height: 40px;
+            max-height: 200px;
+            line-height: 1.5;
+            background: rgba(20, 25, 45, 0.7);
+            color: #fff;
+        }
+
+        .input-container button {
+            margin-left: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            writing-mode: horizontal-tb;
+            white-space: nowrap;
+            min-width: 80px;
+            height: 44px;
+        }
+
+        .delete-btn {
+            color: #ff6b6b;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            color: #ff3838;
+            transform: scale(1.1);
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            cursor: pointer;
+            height: 40px;
+            color: #fff;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .clear-history-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ff3838);
+            width: 100%;
+        }
+
+        button[name="unload_model"] {
+            background: linear-gradient(135deg, #ff6b6b, #ff3838);
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5d7de8, #9666d6);
+        }
+    </style>
+    <script>
+        // 星空背景生成
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.createElement('div');
+            stars.className = 'stars';
+            document.body.insertBefore(stars, document.body.firstChild);
+
+            // 创建星星
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // 随机大小
+                const size = Math.random() * 3;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                // 随机位置
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                
+                // 随机透明度
+                star.style.opacity = Math.random() * 0.8 + 0.2;
+                
+                // 随机动画持续时间
+                const duration = Math.random() * 50 + 50;
+                star.style.animationDuration = duration + 's';
+                
+                stars.appendChild(star);
+            }
+
+            // 保持原有功能脚本不变
+            initHistory('tokenizer_path', 'tokenizerHistory');
+            initHistory('model_weights_path', 'modelWeightsHistory');
+
+            const inputCode = document.getElementById('input_code');
+            inputCode.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    sendCode();
+                }
+            });
+
+            inputCode.addEventListener('input', () => {
+                inputCode.style.height = 'auto';
+                const scrollHeight = inputCode.scrollHeight;
+                inputCode.style.height = Math.min(scrollHeight, 200) + 'px';
+            });
+
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
+            clearHistoryBtn.addEventListener('click', () => {
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.innerHTML = '';
+            });
+        });
+
+        // 保持原有功能函数不变
+        function initHistory(inputId, storageKey) {
+            const input = document.getElementById(inputId);
+            const container = document.createElement('div');
+            container.classList.add('history-list');
+            input.parentNode.insertBefore(container, input);
+            container.appendChild(input);
+
+            const dropdown = document.createElement('div');
+            dropdown.classList.add('history-dropdown');
+            dropdown.style.display = 'none';
+            container.appendChild(dropdown);
+
+            let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+            function updateDropdown() {
+                dropdown.innerHTML = '';
+                history.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.classList.add('history-item');
+                    div.innerHTML = `
+                        <span>${item}</span>
+                        <button class="delete-btn" data-index="${index}">X</button>
+                    `;
+                    div.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        removeHistory(storageKey, index);
+                    });
+                    div.addEventListener('click', () => {
+                        input.value = item;
+                        dropdown.style.display = 'none';
+                        moveToTop(item);
+                    });
+                    dropdown.appendChild(div);
+                });
+            }
+
+            function moveToTop(value) {
+                const index = history.indexOf(value);
+                if (index !== -1) {
+                    history.splice(index, 1);
+                }
+                history.unshift(value);
+                localStorage.setItem(storageKey, JSON.stringify(history));
+                updateDropdown();
+            }
+
+            input.addEventListener('focus', () => {
+                updateDropdown();
+                dropdown.style.display = history.length > 0 ? 'block' : 'none';
+            });
+
+            input.addEventListener('blur', () => {
+                setTimeout(() => {
+                    dropdown.style.display = 'none';
+                }, 200);
+            });
+
+            input.addEventListener('change', () => {
+                const value = input.value.trim();
+                if (value) {
+                    moveToTop(value);
+                }
+            });
+
+            window.removeHistory = (key, index) => {
+                const storedHistory = JSON.parse(localStorage.getItem(key)) || [];
+                storedHistory.splice(index, 1);
+                localStorage.setItem(key, JSON.stringify(storedHistory));
+                history = storedHistory;
+                updateDropdown();
+            };
+        }
+
+        async function sendCode() {
+            const inputCode = document.getElementById('input_code').value.trim();
+            const modelType = document.getElementById('model_type').value;
+
+            if (!inputCode) return;
+
+            const chatContainer = document.getElementById('chat-container');
+
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('chat-message', 'user');
+            userMessage.innerHTML = `
+                <div class="message-header">用户</div>
+                <div class="message-content">${inputCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+            `;
+            chatContainer.appendChild(userMessage);
+
+            document.getElementById('input_code').value = '';
+            document.getElementById('input_code').style.height = 'auto';
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ input_code: inputCode, model_type: modelType })
+                });
+
+                const result = await response.json();
+
+                const modelMessage = document.createElement('div');
+                modelMessage.classList.add('chat-message', 'model');
+                modelMessage.innerHTML = `
+                    <div class="message-header">${result.model_type}</div>
+                    <div class="message-content">${result.fixed_code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                `;
+                chatContainer.appendChild(modelMessage);
+
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } catch (error) {
+                console.error("请求失败：", error);
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('chat-message', 'model');
+                errorMessage.innerHTML = `
+                    <div class="message-header">错误</div>
+                    <div class="message-content">请求失败，请检查网络或后端服务。</div>
+                `;
+                chatContainer.appendChild(errorMessage);
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>漏洞修复工具</h1>
+        <form method="POST">
+            <label for="model_type">选择模型类型:</label>
+            <select name="model_type" id="model_type">
+                <option value="codet5" {% if model_type == "codet5" %}selected{% endif %}>CodeT5</option>
+                <option value="codebert" {% if model_type == "codebert" %}selected{% endif %}>CodeBERT</option>
+            </select>
+
+            <label for="tokenizer_path">输入分词器路径（可选）:</label>
+            <input type="text" name="tokenizer_path" id="tokenizer_path" placeholder="例如：./tokenizers/codet5_tokenizer">
+
+            <label for="model_weights_path">输入模型权重路径（可选）:</label>
+            <input type="text" name="model_weights_path" id="model_weights_path" placeholder="例如：./models/codet5/pytorch_model.bin">
+
+            <button type="submit" name="load_model">加载模型</button>
+            <button type="submit" name="unload_model">卸载模型</button>
+
+            {% if message %}
+                <div class="message {% if "成功" in message %}success{% else %}error{% endif %}">
+                    <strong>{{ message|safe }}</strong>
+                </div>
+            {% endif %}
+        </form>
+
+        <div class="chat-container" id="chat-container">
+            <!-- 对话内容将动态插入 -->
+        </div>
+        <div class="input-container">
+            <textarea id="input_code" placeholder="请输入漏洞代码..."></textarea>
+            <button onclick="sendCode()">发送</button>
+        </div>
+        <button id="clear-history-btn" class="clear-history-btn">清除历史对话</button>
+    </div>
+</body>
+</html>

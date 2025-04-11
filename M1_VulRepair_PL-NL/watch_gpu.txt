@@ -1,0 +1,44 @@
+pip install gpustat
+watch -n1 --color gpustat --color
+du -sh .[!.]* *
+export HF_ENDPOINT=https://hf-mirror.com
+
+CUDA_VISIBLE_DEVICES=2,3,4,5 llamafactory-cli train \
+    --stage sft \
+    --do_train True \
+    --model_name_or_path /data/share/models/vulrepair-7B \
+    --preprocessing_num_workers 16 \
+    --finetuning_type lora \
+    --template qwen \
+    --flash_attn auto \
+    --dataset_dir data \
+    --dataset VulRepair_train \
+    --cutoff_len 4096 \
+    --learning_rate 2e-05 \
+    --num_train_epochs 5.0 \
+    --max_samples 100000 \
+    --per_device_train_batch_size 4 \
+    --gradient_accumulation_steps 8 \
+    --lr_scheduler_type linear \
+    --max_grad_norm 1.0 \
+    --logging_steps 5 \
+    --save_steps 100 \
+    --warmup_steps 0 \
+    --packing False \
+    --report_to none \
+    --output_dir /data/share/data/scq/LLaMA-Factory/vulrepair-7B/lora/train_2025-03-31-17-15-11 \
+    --fp16 True \
+    --plot_loss True \
+    --trust_remote_code True \
+    --ddp_timeout 180000000 \
+    --include_num_input_tokens_seen True \
+    --optim adamw_torch \
+    --adapter_name_or_path saves/Qwen2.5-Coder-7B-Instruct/lora/train_2025-03-31-12-49-02 \
+    --lora_rank 8 \
+    --lora_alpha 16 \
+    --lora_dropout 0 \
+    --lora_target all \
+    --val_size 0.1 \
+    --eval_strategy steps \
+    --eval_steps 100 \
+    --per_device_eval_batch_size 4

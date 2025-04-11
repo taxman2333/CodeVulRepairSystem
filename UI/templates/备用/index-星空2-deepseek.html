@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漏洞修复工具</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a1a;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 星空粒子背景 */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background-color: #0a0a1a;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: rgba(20, 20, 40, 0.9);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 150, 255, 0.3);
+            border: 1px solid rgba(0, 150, 255, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00a8ff;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+            text-shadow: 0 0 10px rgba(0, 168, 255, 0.5);
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            color: #00a8ff;
+            font-size: 0.95em;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #2a3a4a;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: #00a8ff;
+            box-shadow: 0 0 8px rgba(0, 168, 255, 0.4);
+            outline: none;
+        }
+
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0088ff;
+            box-shadow: 0 0 10px rgba(0, 136, 255, 0.5);
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .message.success {
+            background-color: rgba(0, 200, 100, 0.2);
+            color: #00ff88;
+            border: 1px solid rgba(0, 200, 100, 0.3);
+        }
+
+        .message.error {
+            background-color: rgba(200, 0, 50, 0.2);
+            color: #ff4466;
+            border: 1px solid rgba(200, 0, 50, 0.3);
+        }
+
+        .chat-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #2a3a4a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 25px;
+            background-color: rgba(15, 15, 30, 0.7);
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+        }
+
+        .chat-message.user {
+            text-align: right;
+        }
+
+        .chat-message.user .message-header {
+            font-weight: bold;
+            color: #00a8ff;
+            margin-bottom: 5px;
+        }
+
+        .chat-message.user .message-content {
+            background-color: rgba(0, 100, 200, 0.3);
+            display: inline-block;
+            padding: 12px 15px;
+            border-radius: 12px 12px 0 12px;
+            max-width: 70%;
+            border: 1px solid rgba(0, 100, 200, 0.5);
+        }
+
+        .chat-message.model {
+            text-align: left;
+        }
+
+        .chat-message.model .message-header {
+            font-weight: bold;
+            color: #00cc88;
+            margin-bottom: 5px;
+        }
+
+        .chat-message.model .message-content {
+            background-color: rgba(0, 150, 100, 0.3);
+            display: inline-block;
+            padding: 12px 15px;
+            border-radius: 12px 12px 12px 0;
+            max-width: 70%;
+            border: 1px solid rgba(0, 150, 100, 0.5);
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .input-container textarea {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #2a3a4a;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: none;
+            overflow-y: auto;
+            min-height: 50px;
+            max-height: 200px;
+            line-height: 1.5;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+        }
+
+        .input-container button {
+            margin-left: 10px;
+            background-color: #0066cc;
+            min-width: 80px;
+            height: 50px;
+        }
+
+        .input-container button:hover {
+            background-color: #0088ff;
+        }
+
+        .delete-btn {
+            color: #ff4466;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:hover {
+            color: #ff0022;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            cursor: pointer;
+            height: 40px;
+            border-bottom: 1px solid #2a3a4a;
+        }
+
+        .history-item:hover {
+            background-color: rgba(0, 100, 200, 0.1);
+        }
+
+        .clear-history-btn {
+            background-color: #cc3300;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .clear-history-btn:hover {
+            background-color: #ff4422;
+        }
+
+        button[name="unload_model"] {
+            background-color: #cc3300;
+        }
+
+        button[name="unload_model"]:hover {
+            background-color: #ff4422;
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #0066cc;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0088ff;
+        }
+
+        /* 表单按钮组 */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 星空粒子背景 -->
+    <div id="particles-js"></div>
+
+    <div class="container">
+        <h1>漏洞修复工具</h1>
+        <form method="POST">
+            <label for="model_type">选择模型类型:</label>
+            <select name="model_type" id="model_type">
+                <option value="codet5" {% if model_type == "codet5" %}selected{% endif %}>CodeT5</option>
+                <option value="codebert" {% if model_type == "codebert" %}selected{% endif %}>CodeBERT</option>
+            </select>
+
+            <label for="tokenizer_path">输入分词器路径（可选）:</label>
+            <input type="text" name="tokenizer_path" id="tokenizer_path" placeholder="例如：./tokenizers/codet5_tokenizer">
+
+            <label for="model_weights_path">输入模型权重路径（可选）:</label>
+            <input type="text" name="model_weights_path" id="model_weights_path" placeholder="例如：./models/codet5/pytorch_model.bin">
+
+            <div class="button-group">
+                <button type="submit" name="load_model">加载模型</button>
+                <button type="submit" name="unload_model">卸载模型</button>
+            </div>
+
+            {% if message %}
+                <div class="message {% if "成功" in message %}success{% else %}error{% endif %}">
+                    <strong>{{ message|safe }}</strong>
+                </div>
+            {% endif %}
+        </form>
+
+        <div class="chat-container" id="chat-container">
+            <!-- 对话内容将动态插入 -->
+        </div>
+        <div class="input-container">
+            <textarea id="input_code" placeholder="请输入漏洞代码..."></textarea>
+            <button onclick="sendCode()">发送</button>
+        </div>
+        <button id="clear-history-btn" class="clear-history-btn">清除历史对话</button>
+    </div>
+
+    <!-- 粒子效果库 -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // 初始化粒子效果
+        document.addEventListener('DOMContentLoaded', function() {
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#00a8ff"
+                    },
+                    "shape": {
+                        "type": "circle",
+                        "stroke": {
+                            "width": 0,
+                            "color": "#000000"
+                        },
+                        "polygon": {
+                            "nb_sides": 5
+                        }
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": false,
+                        "anim": {
+                            "enable": false,
+                            "speed": 1,
+                            "opacity_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {
+                            "enable": false,
+                            "speed": 40,
+                            "size_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#00a8ff",
+                        "opacity": 0.4,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                        "attract": {
+                            "enable": false,
+                            "rotateX": 600,
+                            "rotateY": 1200
+                        }
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "grab"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {
+                            "distance": 140,
+                            "line_linked": {
+                                "opacity": 1
+                            }
+                        },
+                        "bubble": {
+                            "distance": 400,
+                            "size": 40,
+                            "duration": 2,
+                            "opacity": 8,
+                            "speed": 3
+                        },
+                        "repulse": {
+                            "distance": 200,
+                            "duration": 0.4
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        },
+                        "remove": {
+                            "particles_nb": 2
+                        }
+                    }
+                },
+                "retina_detect": true
+            });
+
+            initHistory('tokenizer_path', 'tokenizerHistory');
+            initHistory('model_weights_path', 'modelWeightsHistory');
+
+            const inputCode = document.getElementById('input_code');
+            inputCode.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    sendCode();
+                }
+            });
+
+            inputCode.addEventListener('input', () => {
+                inputCode.style.height = 'auto';
+                const scrollHeight = inputCode.scrollHeight;
+                inputCode.style.height = Math.min(scrollHeight, 200) + 'px';
+            });
+
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
+            clearHistoryBtn.addEventListener('click', () => {
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.innerHTML = '';
+            });
+        });
+
+        function initHistory(inputId, storageKey) {
+            const input = document.getElementById(inputId);
+            const container = document.createElement('div');
+            container.classList.add('history-list');
+            input.parentNode.insertBefore(container, input);
+            container.appendChild(input);
+
+            const dropdown = document.createElement('div');
+            dropdown.classList.add('history-dropdown');
+            dropdown.style.display = 'none';
+            container.appendChild(dropdown);
+
+            let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+            function updateDropdown() {
+                dropdown.innerHTML = '';
+                history.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.classList.add('history-item');
+                    div.innerHTML = `
+                        <span>${item}</span>
+                        <button class="delete-btn" data-index="${index}">X</button>
+                    `;
+                    div.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        removeHistory(storageKey, index);
+                    });
+                    div.addEventListener('click', () => {
+                        input.value = item;
+                        dropdown.style.display = 'none';
+                        moveToTop(item);
+                    });
+                    dropdown.appendChild(div);
+                });
+            }
+
+            function moveToTop(value) {
+                const index = history.indexOf(value);
+                if (index !== -1) {
+                    history.splice(index, 1);
+                }
+                history.unshift(value);
+                localStorage.setItem(storageKey, JSON.stringify(history));
+                updateDropdown();
+            }
+
+            input.addEventListener('focus', () => {
+                updateDropdown();
+                dropdown.style.display = history.length > 0 ? 'block' : 'none';
+            });
+
+            input.addEventListener('blur', () => {
+                setTimeout(() => {
+                    dropdown.style.display = 'none';
+                }, 200);
+            });
+
+            input.addEventListener('change', () => {
+                const value = input.value.trim();
+                if (value) {
+                    moveToTop(value);
+                }
+            });
+
+            window.removeHistory = (key, index) => {
+                const storedHistory = JSON.parse(localStorage.getItem(key)) || [];
+                storedHistory.splice(index, 1);
+                localStorage.setItem(key, JSON.stringify(storedHistory));
+                history = storedHistory;
+                updateDropdown();
+            };
+        }
+
+        async function sendCode() {
+            const inputCode = document.getElementById('input_code').value.trim();
+            const modelType = document.getElementById('model_type').value;
+
+            if (!inputCode) return;
+
+            const chatContainer = document.getElementById('chat-container');
+
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('chat-message', 'user');
+            userMessage.innerHTML = `
+                <div class="message-header">用户</div>
+                <div class="message-content">${inputCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+            `;
+            chatContainer.appendChild(userMessage);
+
+            document.getElementById('input_code').value = '';
+            document.getElementById('input_code').style.height = 'auto';
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ input_code: inputCode, model_type: modelType })
+                });
+
+                const result = await response.json();
+
+                const modelMessage = document.createElement('div');
+                modelMessage.classList.add('chat-message', 'model');
+                modelMessage.innerHTML = `
+                    <div class="message-header">${result.model_type}</div>
+                    <div class="message-content">${result.fixed_code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                `;
+                chatContainer.appendChild(modelMessage);
+
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } catch (error) {
+                console.error("请求失败：", error);
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('chat-message', 'model');
+                errorMessage.innerHTML = `
+                    <div class="message-header">错误</div>
+                    <div class="message-content">请求失败，请检查网络或后端服务。</div>
+                `;
+                chatContainer.appendChild(errorMessage);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漏洞修复工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333333;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            color: #555555;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .chat-container {
+            max-height: 1000px; /* 将对话框最大高度加大 */
+            overflow-y: auto;
+            border: 1px solid #cccccc;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+        }
+        .chat-message {
+            margin-bottom: 15px;
+        }
+        .chat-message.user {
+            text-align: right;
+        }
+        .chat-message.user .message-header {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .chat-message.user .message-content {
+            background-color: #e9f5ff;
+            display: inline-block;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+        .chat-message.model {
+            text-align: left;
+        }
+        .chat-message.model .message-header {
+            font-weight: bold;
+            color: #28a745;
+        }
+        .chat-message.model .message-content {
+            background-color: #e9ffe9;
+            display: inline-block;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+        .input-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .input-container textarea {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            font-size: 14px;
+            resize: none; /* 禁止用户手动调整大小 */
+            overflow-y: auto; /* 超过最大高度时显示滑条 */
+            min-height: 40px; /* 输入框为空时的最小高度 */
+            max-height: 200px; /* 输入框最大高度（10行代码） */
+            line-height: 1.5; /* 设置行高 */
+        }
+        .input-container button {
+            margin-left: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+            writing-mode: horizontal-tb; /* 设置文字为横向排列 */
+            white-space: nowrap; /* 防止文字换行 */
+            min-width: 80px; /* 设置按钮的最小宽度，确保文字横向排列 */
+        }
+        .input-container button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 修改历史记录删除按钮的样式 */
+        .delete-btn {
+            color: red;
+            background: none;
+            border: none;
+            font-size: 20px; /* 加大字体大小 */
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+            line-height: 1; /* 确保按钮的高度与字体一致 */
+            display: flex;
+            align-items: center; /* 垂直居中 */
+            justify-content: center; /* 水平居中 */
+        }
+        .delete-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* 历史记录项样式 */
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* 确保内容和按钮都垂直居中 */
+            padding: 5px 10px;
+            cursor: pointer;
+            height: 40px; /* 设置固定高度，便于对齐 */
+        }
+        .history-item:hover {
+            background-color: #f0f0f0; /* 鼠标悬停时背景变灰 */
+        }
+
+        /* 清除历史对话按钮样式 */
+        .clear-history-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .clear-history-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* 卸载模型按钮样式 */
+        button[name="unload_model"] {
+            background-color: #dc3545; /* 红色背景 */
+        }
+        button[name="unload_model"]:hover {
+            background-color: #c82333; /* 深红色背景 */
+        }
+    </style>
+    <script>
+        function initHistory(inputId, storageKey) {
+            const input = document.getElementById(inputId);
+            const container = document.createElement('div');
+            container.classList.add('history-list');
+            input.parentNode.insertBefore(container, input);
+            container.appendChild(input);
+
+            const dropdown = document.createElement('div');
+            dropdown.classList.add('history-dropdown');
+            dropdown.style.display = 'none';
+            container.appendChild(dropdown);
+
+            let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+            function updateDropdown() {
+                dropdown.innerHTML = '';
+                history.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.classList.add('history-item');
+                    div.innerHTML = `
+                        <span>${item}</span>
+                        <button class="delete-btn" data-index="${index}">X</button>
+                    `;
+                    div.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation(); // 阻止事件冒泡，防止触发点击历史记录的事件
+                        removeHistory(storageKey, index);
+                    });
+                    div.addEventListener('click', () => {
+                        input.value = item;
+                        dropdown.style.display = 'none';
+                        moveToTop(item); // 将点击的历史记录移到顶部
+                    });
+                    dropdown.appendChild(div);
+                });
+            }
+
+            function moveToTop(value) {
+                const index = history.indexOf(value);
+                if (index !== -1) {
+                    history.splice(index, 1); // 移除旧位置
+                }
+                history.unshift(value); // 添加到顶部
+                localStorage.setItem(storageKey, JSON.stringify(history));
+                updateDropdown();
+            }
+
+            input.addEventListener('focus', () => {
+                updateDropdown();
+                dropdown.style.display = history.length > 0 ? 'block' : 'none';
+            });
+
+            input.addEventListener('blur', () => {
+                setTimeout(() => {
+                    dropdown.style.display = 'none';
+                }, 200);
+            });
+
+            input.addEventListener('change', () => {
+                const value = input.value.trim();
+                if (value) {
+                    moveToTop(value); // 无论新旧记录都移到顶部
+                }
+            });
+
+            window.removeHistory = (key, index) => {
+                const storedHistory = JSON.parse(localStorage.getItem(key)) || [];
+                storedHistory.splice(index, 1);
+                localStorage.setItem(key, JSON.stringify(storedHistory));
+                history = storedHistory;
+                updateDropdown();
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initHistory('tokenizer_path', 'tokenizerHistory');
+            initHistory('model_weights_path', 'modelWeightsHistory');
+
+            const inputCode = document.getElementById('input_code');
+            inputCode.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && !event.shiftKey) { // 按下回车键发送
+                    event.preventDefault();
+                    sendCode();
+                }
+            });
+
+            // 自动调整输入框高度
+            inputCode.addEventListener('input', () => {
+                inputCode.style.height = 'auto'; // 重置高度
+                const scrollHeight = inputCode.scrollHeight; // 获取内容高度
+                inputCode.style.height = Math.min(scrollHeight, 200) + 'px'; // 设置高度，最大不超过200px
+            });
+
+            // 清除历史对话功能
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
+            clearHistoryBtn.addEventListener('click', () => {
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.innerHTML = ''; // 清空对话框内容
+            });
+        });
+
+        async function sendCode() {
+            const inputCode = document.getElementById('input_code').value.trim();
+            const modelType = document.getElementById('model_type').value; // 获取模型类型
+
+            if (!inputCode) return;
+
+            const chatContainer = document.getElementById('chat-container');
+
+            // 添加用户输入到对话区
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('chat-message', 'user');
+            userMessage.innerHTML = `
+                <div class="message-header">用户</div>
+                <div class="message-content">${inputCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+            `;
+            chatContainer.appendChild(userMessage);
+
+            // 清空输入框
+            document.getElementById('input_code').value = '';
+            document.getElementById('input_code').style.height = 'auto'; // 重置输入框高度
+
+            try {
+                // 发送请求到后端
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ input_code: inputCode, model_type: modelType }) // 传递模型类型
+                });
+
+                const result = await response.json();
+
+                // 添加模型生成的内容到对话区
+                const modelMessage = document.createElement('div');
+                modelMessage.classList.add('chat-message', 'model');
+                modelMessage.innerHTML = `
+                    <div class="message-header">${result.model_type}</div>
+                    <div class="message-content">${result.fixed_code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                `;
+                chatContainer.appendChild(modelMessage);
+
+                // 滚动到底部
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } catch (error) {
+                console.error("请求失败：", error);
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('chat-message', 'model');
+                errorMessage.innerHTML = `
+                    <div class="message-header">错误</div>
+                    <div class="message-content">请求失败，请检查网络或后端服务。</div>
+                `;
+                chatContainer.appendChild(errorMessage);
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>漏洞修复工具</h1>
+        <form method="POST">
+            <label for="model_type">选择模型类型:</label>
+            <select name="model_type" id="model_type">
+                <option value="codet5" {% if model_type == "codet5" %}selected{% endif %}>CodeT5</option>
+                <option value="codebert" {% if model_type == "codebert" %}selected{% endif %}>CodeBERT</option>
+            </select>
+
+            <label for="tokenizer_path">输入分词器路径（可选）:</label>
+            <input type="text" name="tokenizer_path" id="tokenizer_path" placeholder="例如：./tokenizers/codet5_tokenizer">
+
+            <label for="model_weights_path">输入模型权重路径（可选）:</label>
+            <input type="text" name="model_weights_path" id="model_weights_path" placeholder="例如：./models/codet5/pytorch_model.bin">
+
+            <button type="submit" name="load_model">加载模型</button>
+            <button type="submit" name="unload_model">卸载模型</button>
+
+            {% if message %}
+                <div class="message {% if "成功" in message %}success{% else %}error{% endif %}">
+                    <strong>{{ message|safe }}</strong>
+                </div>
+            {% endif %}
+        </form>
+
+        <div class="chat-container" id="chat-container">
+            <!-- 对话内容将动态插入 -->
+        </div>
+        <div class="input-container">
+            <textarea id="input_code" placeholder="请输入漏洞代码..."></textarea>
+            <button onclick="sendCode()">发送</button>
+        </div>
+        <button id="clear-history-btn" class="clear-history-btn">清除历史对话</button>
+    </div>
+</body>
+</html>

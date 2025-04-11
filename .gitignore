@@ -1,0 +1,7 @@
+*.bin
+saves/
+*.csv
+*.log
+*.tmp
+*.json
+*.pdf
