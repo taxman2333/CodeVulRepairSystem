@@ -5,3 +5,6 @@ saves/
 *.tmp
 *.json
 *.pdf
+*.doc
+*.docx
+*.ppt

@@ -671,7 +671,8 @@
             <form method="POST">
                 <label for="model_type">选择模型类型</label>
                 <select name="model_type" id="model_type">
-                    <option value="codet5" {% if model_type == "codet5" %}selected{% endif %}>CodeT5</option>
+                    <option value="codet5-base" {% if model_type == "codet5-base" %}selected{% endif %}>CodeT5-Base</option>
+                    <option value="codet5-large" {% if model_type == "codet5-large" %}selected{% endif %}>CodeT5-Large</option>
                     <option value="codebert" {% if model_type == "codebert" %}selected{% endif %}>CodeBERT</option>
                 </select>
 

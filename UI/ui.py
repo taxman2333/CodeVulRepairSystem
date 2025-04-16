@@ -34,8 +34,10 @@ def index():
             # 加载模型
             try:
                 # 根据模型类型设置默认的 Hugging Face 模型名称
-                if model_type == "codet5":
+                if model_type == "codet5-base":
                     model_name_or_path = "taxman2333/CodeVulFix"
+                elif model_type == "codet5-large":
+                    model_name_or_path = "taxman2333/CodeVulFix_t5-large"
                 elif model_type == "codebert":
                     model_name_or_path = "microsoft/codebert-base"
                 else:
@@ -60,7 +62,7 @@ def index():
                     ])
 
                 # 加载模型
-                if model_type == "codet5":
+                if model_type in ["codet5-base", "codet5-large"]:
                     if model_weights_path and os.path.exists(model_weights_path):
                         config = T5ForConditionalGeneration.from_pretrained(model_name_or_path).config
                         model = T5ForConditionalGeneration(config)
@@ -76,7 +78,7 @@ def index():
                     return render_template(
                         "index.html", 
                         message=(
-                            f"<pre>CodeT5 模型加载成功！\n"
+                            f"<pre>{'CodeT5-Base' if model_type == 'codet5-base' else 'CodeT5-Large'} 模型加载成功！\n"
                             f"模型路径: {model_name_or_path}\n"
                             f"分词器路径: {tokenizer_name}\n"
                             f"权重路径: {model_bin_path}</pre>"
@@ -139,7 +141,7 @@ def generate():
         return jsonify({"model_type": "错误", "fixed_code": "请输入漏洞代码！"}), 400
 
     try:
-        if model_type == "codet5":
+        if model_type == "codet5-base" or model_type == "codet5-large":
             input_ids = tokenizer.encode(input_code, return_tensors="pt", truncation=True, max_length=512).to(device)
             outputs = model.generate(
                 input_ids, 
